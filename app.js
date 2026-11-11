@@ -61,7 +61,7 @@
     $('stamp').textContent = 'Data ' + (h.hari_ini === hariIni() ? '' : tgl(h.hari_ini) + ' ') + jamWib(d.dibuat) + ' WIB';
     banner(h.hari_ini && h.hari_ini !== hariIni() ? 'Ini data tanggal ' + tgl(h.hari_ini) + '. Tekan Perbarui untuk melihat hari ini.' : '');
 
-    hero(h);
+    grupKartu(d);
 
     $('k-terkirim').textContent = fmt(h.email_terkirim);
     $('k-gagal').textContent = fmt(h.email_gagal);
@@ -109,30 +109,63 @@
     }));
   }
 
-  function hero(h) {
-    const target = h.penerima_bisa_dikirim || 0, sampai = h.tender_sampai || 0, belum = h.tender_belum || 0, gagal = h.tender_gagal || 0;
-    const p = target ? sampai / target : 0;
-    $('h-sampai').textContent = fmt(sampai);
-    $('h-target').textContent = fmt(target);
-    $('h-pelanggan').textContent = fmt(h.pelanggan_aktif);
-    $('h-penerima').textContent = fmt(h.penerima_total);
-    $('h-belum').textContent = fmt(belum);
-    $('h-gagal').textContent = fmt(gagal);
-    $('h-gagal').classList.toggle('bad', gagal > 0);
-    $('h-belum').classList.toggle('bad', h.jadwal_tender_hari_ini && sampai > 0 && belum > 0);
-    $('h-waktu').textContent = h.tender_mulai ? (h.tender_mulai === h.tender_selesai ? h.tender_mulai : h.tender_mulai + '–' + h.tender_selesai) : '—';
-
+  // Kartu per grup (NOPA, Jaya Intero Poin): sudah/belum menerima email tender hari ini.
+  const WARNA_GRUP = {'nopa': 'var(--brand-2)', 'jaya-intero-poin': '#f4ca45'};
+  function statusGrup(g, h) {
     const sekarang = wib(); const sebelumJadwal = sekarang.getUTCHours() < 9 || (sekarang.getUTCHours() === 9 && sekarang.getUTCMinutes() < 15);
     const hariLama = h.hari_ini !== hariIni();
-    let badge = 'Tidak ada jadwal', kelas = '', hint = 'Email tender dijadwalkan Senin, Rabu dan Jumat pukul 09:00 WIB.';
-    if (sampai > 0 && belum === 0 && gagal === 0) { badge = 'Semua terkirim'; kelas = 'ok'; hint = ''; }
-    else if (sampai > 0) { badge = 'Belum lengkap'; kelas = 'warn'; hint = fmt(belum) + ' penerima belum menerima email tender hari ini' + (gagal ? ' dan ' + fmt(gagal) + ' email gagal.' : '.'); }
-    else if (h.jadwal_tender_hari_ini && sebelumJadwal && !hariLama) { badge = 'Terjadwal 09:00'; kelas = ''; hint = 'Email tender hari ini akan dikirim pukul 09:00 WIB.'; }
-    else if (h.jadwal_tender_hari_ini) { badge = 'Belum dikirim'; kelas = 'bad'; hint = 'Hari ini jadwal kirim, tapi belum ada email tender yang terkirim. Periksa workflow "NOPA Supabase - Kirim Email Tender" di n8n.'; }
-    const b = $('h-badge'); b.textContent = badge; b.className = 'badge ' + kelas;
-    const prog = $('h-prog'); prog.className = 'progress ' + (kelas === 'ok' || !kelas ? '' : kelas); prog.setAttribute('aria-valuenow', Math.round(p * 100));
-    $('h-bar').style.width = (p * 100) + '%';
-    $('h-hint').textContent = hint;
+    const belumLama = g.belum - g.belum_daftar_baru;
+    const baru = g.belum_daftar_baru ? fmt(g.belum_daftar_baru) + ' penerima baru mendaftar setelah pengiriman, akan menerima di jadwal berikutnya.' : '';
+    if (!g.penerima) return ['Belum ada anggota', '', 'Grup ini belum punya penerima.'];
+    if (g.sampai > 0 && belumLama === 0 && g.gagal === 0) return [baru ? 'Terkirim' : 'Semua terkirim', 'ok', baru];
+    if (g.sampai > 0) return ['Belum lengkap', 'warn', fmt(belumLama) + ' penerima belum menerima' + (g.gagal ? ', ' + fmt(g.gagal) + ' gagal' : '') + '. ' + baru];
+    if (h.tender_mulai && g.belum === g.belum_daftar_baru) return ['Anggota baru', '', 'Semua penerima grup ini mendaftar setelah pengiriman pukul ' + h.tender_mulai + '. Akan menerima di jadwal berikutnya.'];
+    if (h.jadwal_tender_hari_ini && sebelumJadwal && !hariLama) return ['Terjadwal 09:00', '', 'Email tender hari ini akan dikirim pukul 09:00 WIB.'];
+    if (h.jadwal_tender_hari_ini) return ['Belum dikirim', 'bad', 'Hari ini jadwal kirim, tapi grup ini belum menerima. Periksa workflow "NOPA Supabase - Kirim Email Tender" di n8n.'];
+    return ['Tidak ada jadwal', '', 'Email tender dijadwalkan Senin, Rabu dan Jumat pukul 09:00 WIB.'];
+  }
+  function grupKartu(d) {
+    const h = d.hari || {};
+    $('h-waktu').textContent = h.tender_mulai ? 'Dikirim ' + (h.tender_mulai === h.tender_selesai ? h.tender_mulai : h.tender_mulai + '–' + h.tender_selesai) + ' WIB' : 'Belum ada pengiriman hari ini';
+    const grup = d.grup || [];
+    $('grup-cards').replaceChildren(...grup.map((g) => {
+      const [badge, kelas, hint] = statusGrup(g, h);
+      const card = el('section', null, 'hero grp');
+      const top = el('div', null, 'hero-top');
+      const kiri = el('div');
+      const nm = el('p', null, 'grp-name'); const dot = el('span', null, 'grp-dot'); dot.style.background = WARNA_GRUP[g.grup] || 'var(--muted)'; nm.append(dot, g.nama);
+      const num = el('p', null, 'hero-num'); num.append(el('span', fmt(g.sampai)), (() => { const o = el('span', null, 'of'); o.textContent = ' / ' + fmt(g.penerima) + ' penerima'; return o; })());
+      kiri.append(nm, num);
+      top.append(kiri, el('span', badge, 'badge ' + kelas));
+      const p = g.penerima ? g.sampai / g.penerima : 0;
+      const prog = el('div', null, 'progress ' + (kelas === 'warn' || kelas === 'bad' ? kelas : ''));
+      prog.setAttribute('role', 'progressbar'); prog.setAttribute('aria-label', g.nama + ': penerima yang sudah menerima hari ini');
+      prog.setAttribute('aria-valuemin', '0'); prog.setAttribute('aria-valuemax', '100'); prog.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+      const bar = el('i'); bar.style.width = (p * 100) + '%'; prog.append(bar);
+      const meta = el('dl', null, 'hero-meta grp-meta');
+      [['Pelanggan', g.pelanggan], ['Penerima', g.penerima], ['Belum menerima', g.belum], ['Gagal', g.gagal]].forEach(([k, v]) => {
+        const box = el('div'); const dd = el('dd', fmt(v)); if ((k === 'Gagal' && v > 0) || (k === 'Belum menerima' && kelas === 'warn')) dd.className = 'bad';
+        box.append(el('dt', k), dd); meta.append(box);
+      });
+      card.append(top, prog, meta);
+      if (hint.trim()) card.append(el('p', hint.trim(), 'hint'));
+      return card;
+    }));
+
+    const belum = d.belum || [];
+    const namaGrup = Object.fromEntries(grup.map((g) => [g.grup, g.nama]));
+    $('belum-n').textContent = belum.length ? fmt(belum.length) + ' penerima' : 'Semua sudah menerima';
+    $('t-belum').replaceChildren(...(belum.length ? belum.map((b) => {
+      const li = el('li'); const kiri = el('div', null, 't');
+      const judul = el('span', b.nama || b.perusahaan || b.email, 'judul');
+      const g = el('span', namaGrup[b.grup] || b.grup, 'chip grp-chip'); g.style.setProperty('--gc', WARNA_GRUP[b.grup] || 'var(--muted)');
+      const atas = el('div', null, 'row-top'); atas.append(judul, g);
+      kiri.append(atas, el('div', [b.perusahaan && b.nama ? b.perusahaan : '', b.email].filter(Boolean).join(' · '), 'src'));
+      const jam = String(b.daftar || '').slice(11, 16);
+      const label = b.gagal ? 'Gagal kirim' : b.daftar_setelah_kirim ? 'Daftar ' + jam + ' · jadwal berikutnya' : 'Belum dikirim';
+      li.append(kiri, el('span', label, 'chip ' + (b.gagal ? 'bad' : b.daftar_setelah_kirim ? '' : 'warn')));
+      return li;
+    }) : [el('li', 'Semua penerima sudah menerima email tender hari ini.', 'empty')]));
   }
 
   function perJam(rows, hariSama) {
@@ -163,7 +196,7 @@
     $('layar-pin').hidden = true; $('aplikasi').hidden = false;
     const lama = simpan.get('nopa_data');
     let ada = false;
-    if (lama) { try { const d = JSON.parse(lama); if (d && d.hari) { gambar(d); ada = true; } else simpan.del('nopa_data'); } catch { simpan.del('nopa_data'); } }
+    if (lama) { try { const d = JSON.parse(lama); if (d && d.hari && d.grup) { gambar(d); ada = true; } else simpan.del('nopa_data'); } catch { simpan.del('nopa_data'); } }
     if (!ada) { $('tanggal').textContent = tglPanjang(hariIni()); banner('Belum ada data. Tekan Perbarui untuk mengambil data hari ini.'); }
   }
 
