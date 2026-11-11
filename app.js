@@ -183,6 +183,23 @@
       $('pesan-pin').textContent = e.pin ? 'PIN salah. Coba lagi.' : 'Tidak bisa terhubung. Periksa internet Anda.';
     } finally { $('tombol-pin').disabled = false; $('tombol-pin').textContent = 'Buka'; }
   });
+  // Tema: Otomatis (ikut HP) -> Terang -> Gelap
+  const NAMA_TEMA = {auto: 'otomatis', light: 'terang', dark: 'gelap'};
+  const terapkanTema = (t) => {
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else { delete document.documentElement.dataset.theme; t = 'auto'; }
+    document.querySelectorAll('#tombol-tema [data-ikon]').forEach((s) => { s.toggleAttribute('hidden', s.dataset.ikon !== t); });
+    const b = $('tombol-tema'); b.title = 'Tema: ' + NAMA_TEMA[t];
+    b.setAttribute('aria-label', 'Tema: ' + NAMA_TEMA[t] + '. Ketuk untuk mengganti.');
+    const gelap = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => { m.content = gelap ? '#0b1218' : '#ffffff'; m.removeAttribute('media'); });
+    return t;
+  };
+  let tema = terapkanTema(simpan.get('nopa_tema') || 'auto');
+  $('tombol-tema').addEventListener('click', () => {
+    tema = {auto: 'light', light: 'dark', dark: 'auto'}[tema];
+    simpan.set('nopa_tema', tema); terapkanTema(tema);
+  });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (tema === 'auto') terapkanTema('auto'); });
   $('tombol-perbarui').addEventListener('click', perbarui);
   $('keluar').addEventListener('click', (ev) => { ev.preventDefault(); simpan.del('nopa_pin'); simpan.del('nopa_data'); tampilPin(); });
 

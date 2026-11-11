@@ -8,13 +8,21 @@
   --r:14px; --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root{
+/* Mode gelap: ikut HP (Otomatis) kecuali dipilih Terang/Gelap lewat tombol tema */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0b1218; --surface:#121c25; --surface-2:#18242f; --fg:#e7edf3; --muted:#93a2b0; --line:#223140;
   --brand:#3b8fd0; --brand-2:#5aa6e0; --brand-fg:#06121c;
   --ok:#47c482; --ok-bg:#12301f; --warn:#f0b34a; --warn-bg:#33270f; --bad:#ff7a6b; --bad-bg:#3a1714; --idle:#93a2b0; --idle-bg:#1b2731;
   --c-tender:#5aa6e0; --c-akuisisi:#f0b34a; --c-konfirmasi:#47c482; --c-kampanye:#a68be6;
   --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark;
 }}
+:root[data-theme="dark"]{
+  --bg:#0b1218; --surface:#121c25; --surface-2:#18242f; --fg:#e7edf3; --muted:#93a2b0; --line:#223140;
+  --brand:#3b8fd0; --brand-2:#5aa6e0; --brand-fg:#06121c;
+  --ok:#47c482; --ok-bg:#12301f; --warn:#f0b34a; --warn-bg:#33270f; --bad:#ff7a6b; --bad-bg:#3a1714; --idle:#93a2b0; --idle-bg:#1b2731;
+  --c-tender:#5aa6e0; --c-akuisisi:#f0b34a; --c-konfirmasi:#47c482; --c-kampanye:#a68be6;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark;
+}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--font);-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
@@ -148,3 +156,9 @@ td.bad{color:var(--bad);font-weight:600}
 @media (min-width:640px){.hero-meta{grid-template-columns:repeat(5,minmax(0,1fr))}}
 #t-kirim td:first-child{white-space:nowrap}
 @media (max-width:520px){.hide-sm{display:none}}
+
+/* Tombol tema */
+.btn-ghost{background:transparent;color:var(--fg);border-color:var(--line);padding:9px}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-ghost .ico{width:18px;height:18px}
+@media (max-width:420px){.stamp{display:none}}
