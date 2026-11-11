@@ -152,6 +152,23 @@
       return card;
     }));
 
+    // Pendaftar baru hari ini (semua grup)
+    const baru = d.baru || [];
+    const per = {}; baru.forEach((b) => { per[b.grup] = (per[b.grup] || 0) + 1; });
+    $('baru-n').textContent = baru.length
+      ? grup.filter((g) => per[g.grup]).map((g) => g.nama + ' ' + fmt(per[g.grup])).join(' · ')
+      : 'Belum ada';
+    $('t-baru').replaceChildren(...(baru.length ? baru.map((b) => {
+      const li = el('li'); const kiri = el('div', null, 't');
+      const atas = el('div', null, 'row-top');
+      const g = el('span', (Object.fromEntries(grup.map((x) => [x.grup, x.nama])))[b.grup] || b.grup, 'chip grp-chip'); g.style.setProperty('--gc', WARNA_GRUP[b.grup] || 'var(--muted)');
+      atas.append(el('span', b.nama || b.perusahaan || b.email, 'judul'), g);
+      const info = [b.nama && b.perusahaan ? b.perusahaan : '', b.kota, b.email + (b.jumlah_email > 1 ? ' (+' + (b.jumlah_email - 1) + ' email)' : '')].filter(Boolean).join(' · ');
+      kiri.append(atas, el('div', info, 'src'));
+      li.append(kiri, el('span', 'Daftar ' + b.jam, 'chip ok'));
+      return li;
+    }) : [el('li', 'Belum ada pendaftar baru hari ini.', 'empty')]));
+
     const belum = d.belum || [];
     const namaGrup = Object.fromEntries(grup.map((g) => [g.grup, g.nama]));
     $('belum-n').textContent = belum.length ? fmt(belum.length) + ' penerima' : 'Semua sudah menerima';

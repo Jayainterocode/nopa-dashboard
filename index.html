@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 <script>try{var t=localStorage.getItem("nopa_tema");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
 <body>
@@ -78,6 +78,11 @@
     </section>
 
     <div class="grid">
+      <section class="card span2" id="kartu-baru">
+        <div class="card-h"><h2>Pendaftar baru hari ini</h2><span class="muted" id="baru-n">—</span></div>
+        <ul class="list" id="t-baru"></ul>
+      </section>
+
       <section class="card span2" id="kartu-belum">
         <div class="card-h"><h2>Belum menerima email tender hari ini</h2><span class="muted" id="belum-n">—</span></div>
         <ul class="list" id="t-belum"></ul>
@@ -130,7 +135,7 @@
   </main>
 </div>
 
-<script src="config.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="config.js?v=9"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
