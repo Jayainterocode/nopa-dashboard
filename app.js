@@ -51,7 +51,7 @@
   function gambar(d) {
     const r = d.ringkasan || {};
     document.querySelectorAll('[data-k]').forEach((e) => { e.textContent = fmt(r[e.dataset.k]); });
-    const g = $('kartu-gagal'); g.classList.toggle('bad', r.email_gagal_7h > 0); g.classList.toggle('good', r.email_gagal_7h === 0);
+    const g = $('kartu-gagal'); g.classList.toggle('bad', r.email_gagal_hari_ini > 0); g.classList.toggle('good', r.email_gagal_hari_ini === 0);
     grafik(d.email_harian || []);
 
     $('t-brevo').replaceChildren(...(d.brevo || []).map((b) => {

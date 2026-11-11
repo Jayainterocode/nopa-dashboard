@@ -1,5 +1,5 @@
 // Service worker: simpan tampilan aplikasi agar cepat dibuka. Data selalu diambil baru dari Supabase.
-const VERSI = 'nopa-v2';
+const VERSI = 'nopa-v3';
 const FILE = ['./', './index.html', './app.js', './config.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(VERSI).then((c) => c.addAll(FILE))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
