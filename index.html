@@ -4,168 +4,132 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NOPA Dashboard</title>
-<meta name="theme-color" content="#143d59">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1218" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="NOPA">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<style>
-:root{
-  --bg:#f4f7f9; --panel:#ffffff; --fg:#13222d; --muted:#5b6b77; --line:#dde4ea;
-  --brand:#143d59; --brand-fg:#ffffff;
-  --c0:#1f6f9f; --c1:#e0a020; --c2:#3aa17e; --c3:#9a5bd0;
-  --ok:#1e8a5a; --warn:#b7791f; --bad:#c2410c; --grid:#e8edf1;
-  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  --r:12px; color-scheme:light;
-}
-@media (prefers-color-scheme: dark){:root{
-  --bg:#0d151b; --panel:#15212a; --fg:#e6edf2; --muted:#93a3af; --line:#26343f;
-  --brand:#0f2c40; --brand-fg:#e6edf2;
-  --c0:#5fb0e0; --c1:#f0bf50; --c2:#5cc9a0; --c3:#b88ae6;
-  --ok:#4cc38a; --warn:#e3b341; --bad:#f2865a; --grid:#1f2c36; color-scheme:dark;
-}}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased}
-[hidden]{display:none!important}
-.bar{position:sticky;top:0;z-index:5;background:var(--brand);color:var(--brand-fg);
-  padding:calc(env(safe-area-inset-top,0px) + 12px) max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
-.bar-in{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px}
-.bar h1{font-size:18px;margin:0;font-weight:650;letter-spacing:.01em;flex:1;min-width:0}
-.bar small{display:block;font-size:12px;font-weight:400;opacity:.8}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4cd38f;margin-right:6px;vertical-align:middle}
-.dot.off{background:#f2865a}
-@media (prefers-reduced-motion:no-preference){.dot:not(.off){animation:p 2s ease-in-out infinite}@keyframes p{50%{opacity:.35}}}
-.btn{font:inherit;font-size:14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:transparent;color:inherit;padding:7px 14px;cursor:pointer}
-.btn:focus-visible,.pbtn:focus-visible,input:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
-.btn:disabled{opacity:.55}
-main{max-width:1000px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:22px}
-.take{margin:0;color:var(--muted)}
-.take b{color:var(--fg);font-variant-numeric:tabular-nums}
-.meta{margin:4px 0 0;font-size:12px;color:var(--muted)}
-.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-@media (min-width:700px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.tile .l{font-size:12px;color:var(--muted)}
-.tile .v{font-size:28px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.15}
-.tile .n{font-size:11.5px;color:var(--muted)}
-.tile.bad .v{color:var(--bad)} .tile.good .v{color:var(--ok)}
-section{display:flex;flex-direction:column;gap:8px;min-width:0}
-h2{font-size:16px;margin:0;font-weight:650}
-.sub{margin:0;font-size:12.5px;color:var(--muted)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-width:0}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-.chart{position:relative}
-.chart svg{display:block;width:100%;height:auto}
-.chart text{fill:var(--muted);font-size:11px;font-family:var(--font)}
-.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.15);padding:8px 10px;font-size:12px;white-space:nowrap}
-.tip div{display:flex;justify-content:space-between;gap:14px;font-variant-numeric:tabular-nums}
-.tip .t{font-weight:650}
-.two{display:grid;grid-template-columns:1fr;gap:22px}
-@media (min-width:760px){.two{grid-template-columns:1fr 1fr}}
-.tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{text-align:left;font-size:12px;font-weight:600;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
-tr:last-child td{border-bottom:0}
-.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-td a{color:inherit;text-decoration-color:var(--line);text-underline-offset:3px}
-.muted{color:var(--muted);font-size:12.5px}
-.q{height:7px;background:var(--grid);border-radius:4px;overflow:hidden;margin-top:6px;min-width:60px}
-.q i{display:block;height:100%;border-radius:4px;background:var(--c0)}
-.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line)}
-.pill.ok{color:var(--ok);border-color:currentColor}
-.pill.warn{color:var(--warn);border-color:currentColor}
-.note{font-size:13px;color:var(--muted);padding:10px 12px;border:1px dashed var(--line);border-radius:var(--r)}
-.note.err{color:var(--bad);border-color:currentColor}
-/* layar PIN */
-.pin{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
-.pin form{width:100%;max-width:340px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px;text-align:center}
-.pin img{width:64px;height:64px;margin:0 auto;border-radius:14px}
-.pin h1{font-size:20px;margin:0}
-.pin p{margin:0;color:var(--muted);font-size:13.5px}
-.pin input{font:inherit;font-size:24px;letter-spacing:.4em;text-align:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
-.pbtn{font:inherit;font-weight:600;padding:12px;border:0;border-radius:10px;background:var(--brand);color:var(--brand-fg);cursor:pointer}
-.pin .e{color:var(--bad);font-size:13px;min-height:1.2em}
-.skel{color:transparent!important;background:var(--grid);border-radius:6px}
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- Layar PIN -->
 <div class="pin" id="layar-pin" hidden>
-  <form id="form-pin" autocomplete="off">
-    <img src="icons/icon-192.png" alt="">
+  <form id="form-pin" autocomplete="off" novalidate>
+    <img src="icons/icon-192.png" alt="" width="56" height="56">
     <h1>NOPA Dashboard</h1>
-    <p>Masukkan PIN untuk membuka. PIN hanya diminta sekali di HP ini.</p>
-    <label for="input-pin" class="muted" style="text-align:left">PIN</label>
-    <input id="input-pin" inputmode="numeric" pattern="[0-9]*" maxlength="12" required>
-    <div class="e" id="pesan-pin" role="alert"></div>
-    <button class="pbtn" type="submit" id="tombol-pin">Buka</button>
+    <p>Masukkan PIN untuk membuka. PIN hanya diminta sekali di perangkat ini.</p>
+    <label for="input-pin">PIN</label>
+    <input id="input-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" required>
+    <div class="pin-err" id="pesan-pin" role="alert"></div>
+    <button class="btn btn-primary btn-block" type="submit" id="tombol-pin">Buka</button>
   </form>
 </div>
 
+<!-- Aplikasi -->
 <div id="aplikasi" hidden>
-  <header class="bar">
-    <div class="bar-in">
-      <h1>NOPA<small><span class="dot" id="titik"></span><span id="status">Memuat…</span></small></h1>
-      <button class="btn" id="tombol-perbarui" type="button">Perbarui</button>
+  <header class="nav">
+    <div class="nav-in">
+      <div class="brand">
+        <img src="icons/icon-192.png" alt="" width="32" height="32">
+        <div>
+          <strong>NOPA</strong>
+          <span id="tanggal">—</span>
+        </div>
+      </div>
+      <div class="nav-right">
+        <span class="stamp" id="stamp">Belum ada data</span>
+        <button class="btn btn-primary" id="tombol-perbarui" type="button" aria-label="Perbarui data">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Perbarui</span>
+        </button>
+      </div>
     </div>
   </header>
 
   <main>
-    <div>
-      <p class="take">Hari ini <b data-k="email_terkirim_hari_ini">—</b> email terkirim. Ada <b data-k="tender_menunggu">—</b> tender yang belum dikirim ke <b data-k="pelanggan_aktif">—</b> pelanggan aktif.</p>
-      <p class="meta">Scraping terakhir <span data-k="scraping_terakhir">—</span> WIB · Email terakhir <span data-k="email_terakhir">—</span> WIB</p>
-    </div>
+    <div class="banner" id="banner" hidden></div>
 
-    <div class="tiles">
-      <div class="tile"><span class="l">Pelanggan aktif</span><span class="v" data-k="pelanggan_aktif">—</span><span class="n">Penerima email tender</span></div>
-      <div class="tile"><span class="l">Tender menunggu</span><span class="v" data-k="tender_menunggu">—</span><span class="n">Ikut email berikutnya</span></div>
-      <div class="tile"><span class="l">Tender baru</span><span class="v" data-k="tender_baru_24j">—</span><span class="n">24 jam terakhir</span></div>
-      <div class="tile"><span class="l">Email terkirim</span><span class="v" data-k="email_terkirim_hari_ini">—</span><span class="n">Hari ini (WIB)</span></div>
-      <div class="tile" id="kartu-gagal"><span class="l">Email gagal</span><span class="v" data-k="email_gagal_hari_ini">—</span><span class="n">Hari ini. Idealnya 0</span></div>
-      <div class="tile"><span class="l">Daftar Blokir</span><span class="v" data-k="daftar_blokir">—</span><span class="n">Tidak akan dikirimi</span></div>
-    </div>
-
-    <section>
-      <h2>Email terkirim per hari</h2>
-      <p class="sub">30 hari terakhir (WIB). Ketuk batang untuk melihat angkanya.</p>
-      <div class="card">
-        <div class="legend"><span><i style="background:var(--c0)"></i>Tender</span><span><i style="background:var(--c1)"></i>Akuisisi</span><span><i style="background:var(--c2)"></i>Konfirmasi</span><span><i style="background:var(--c3)"></i>Kampanye</span></div>
-        <div class="chart" id="grafik"></div>
+    <!-- Status utama: email tender hari ini -->
+    <section class="hero" id="hero">
+      <div class="hero-top">
+        <div>
+          <p class="eyebrow">Email tender hari ini</p>
+          <p class="hero-num"><span id="h-sampai">—</span><span class="of"> / <span id="h-target">—</span> penerima</span></p>
+        </div>
+        <span class="badge" id="h-badge">—</span>
       </div>
+      <div class="progress" role="progressbar" aria-label="Penerima yang sudah menerima email tender hari ini" aria-valuemin="0" aria-valuemax="100" id="h-prog"><i id="h-bar"></i></div>
+      <dl class="hero-meta">
+        <div><dt>Pelanggan aktif</dt><dd id="h-pelanggan">—</dd></div>
+        <div><dt>Total penerima</dt><dd id="h-penerima">—</dd></div>
+        <div><dt>Belum menerima</dt><dd id="h-belum">—</dd></div>
+        <div><dt>Gagal</dt><dd id="h-gagal">—</dd></div>
+        <div><dt>Waktu kirim</dt><dd id="h-waktu">—</dd></div>
+      </dl>
+      <p class="hint" id="h-hint"></p>
     </section>
 
-    <div class="two">
-      <section>
-        <h2>Kuota Brevo hari ini</h2>
-        <p class="sub">Terkirim hari ini dibanding batas harian.</p>
-        <div class="card tw"><table><thead><tr><th>Akun</th><th class="r">Terkirim</th><th class="r">Batas</th></tr></thead><tbody id="t-brevo"></tbody></table></div>
+    <!-- Angka hari ini -->
+    <section class="kpis" aria-label="Angka hari ini">
+      <div class="kpi"><span class="k-l">Email terkirim</span><span class="k-v" id="k-terkirim">—</span><span class="k-s">Semua jenis, hari ini</span></div>
+      <div class="kpi" id="kpi-gagal"><span class="k-l">Email gagal</span><span class="k-v" id="k-gagal">—</span><span class="k-s">Harus 0</span></div>
+      <div class="kpi"><span class="k-l">Dilewati</span><span class="k-v" id="k-dilewati">—</span><span class="k-s">Ada di Daftar Blokir</span></div>
+      <div class="kpi"><span class="k-l">Tender baru</span><span class="k-v" id="k-tender">—</span><span class="k-s" id="k-tender-s">Hasil scraping hari ini</span></div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-h"><h2>Email per jenis</h2><span class="muted">Hari ini</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Jenis</th><th class="r">Terkirim</th><th class="r">Gagal</th><th class="r">Dilewati</th></tr></thead>
+          <tbody id="t-jenis"></tbody>
+        </table></div>
       </section>
-      <section>
-        <h2>Pengiriman tender terakhir</h2>
-        <p class="sub">"Pelanggan" = ke pelanggan asli, "Uji" = hanya ke tim.</p>
-        <div class="card tw"><table><thead><tr><th>Waktu</th><th>Ke</th><th class="r">Tender</th><th class="r">Terkirim</th><th class="r">Gagal</th></tr></thead><tbody id="t-kirim"></tbody></table></div>
+
+      <section class="card">
+        <div class="card-h"><h2>Aktivitas per jam</h2><span class="muted">Email terkirim, WIB</span></div>
+        <div class="hours" id="jam"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-h"><h2>Kuota Brevo</h2><span class="muted">Terpakai hari ini</span></div>
+        <ul class="quota" id="t-brevo"></ul>
+      </section>
+
+      <section class="card">
+        <div class="card-h"><h2>Tender per sumber</h2><span class="muted">Hari ini</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Sumber</th><th class="r">Baru</th><th class="r">Menunggu</th></tr></thead>
+          <tbody id="t-sumber"></tbody>
+        </table></div>
+      </section>
+
+      <section class="card span2">
+        <div class="card-h"><h2>Tender menunggu dikirim</h2><span class="muted">Batas waktu terdekat</span></div>
+        <ul class="list" id="t-tender"></ul>
+      </section>
+
+      <section class="card span2">
+        <div class="card-h"><h2>Riwayat kirim email tender</h2><span class="muted">6 terakhir</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Waktu</th><th>Mode</th><th class="r">Tender</th><th class="r hide-sm">Penerima</th><th class="r">Terkirim</th><th class="r">Gagal</th></tr></thead>
+          <tbody id="t-kirim"></tbody>
+        </table></div>
       </section>
     </div>
 
-    <section>
-      <h2>Tender menunggu, batas terdekat</h2>
-      <p class="sub">Belum masuk email ke pelanggan. Ketuk judul untuk membuka pengumuman.</p>
-      <div class="card tw"><table><thead><tr><th>Judul</th><th>Batas</th></tr></thead><tbody id="t-tender"></tbody></table></div>
-    </section>
-
-    <section>
-      <h2>Tender per sumber</h2>
-      <p class="sub">15 sumber teratas.</p>
-      <div class="card tw"><table><thead><tr><th>Sumber</th><th class="r">Menunggu</th><th class="r">Baru 7h</th><th class="r">Total</th></tr></thead><tbody id="t-sumber"></tbody></table></div>
-    </section>
-
-    <p class="meta" style="text-align:center">Angka diperbarui otomatis tiap 2 menit saat aplikasi terbuka. <a href="#" id="keluar" style="color:inherit">Ganti PIN</a></p>
+    <footer class="foot">
+      Data hanya diambil saat Anda menekan <b>Perbarui</b>. Hari dihitung mulai 00:00 WIB.
+      <a href="#" id="keluar">Ganti PIN</a>
+    </footer>
   </main>
 </div>
 
