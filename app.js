@@ -163,7 +163,7 @@
     $('layar-pin').hidden = true; $('aplikasi').hidden = false;
     const lama = simpan.get('nopa_data');
     let ada = false;
-    if (lama) { try { gambar(JSON.parse(lama)); ada = true; } catch {} }
+    if (lama) { try { const d = JSON.parse(lama); if (d && d.hari) { gambar(d); ada = true; } else simpan.del('nopa_data'); } catch { simpan.del('nopa_data'); } }
     if (!ada) { $('tanggal').textContent = tglPanjang(hariIni()); banner('Belum ada data. Tekan Perbarui untuk mengambil data hari ini.'); }
   }
 
